@@ -1,0 +1,340 @@
+HEADER:
+    Size: 11
+    Entries:
+        - Name: Type
+          Size: 1
+          Type: int
+          Value:
+              0x0: Standard
+              0x1: Wood
+              0x2: Blue (faint)
+              0x3: Ocarina
+              0x4: None
+              0x5: None (black text)
+              0x6: Standard 2
+              0x7: None 2
+              0x8: Blue
+              0x9: Red
+              0xA: None 3
+              0xB: None (top)
+              0xC: None 4
+              0xD: Notebook
+              0xE: None 5
+              0xF: Red 2
+        - Name: Position
+          Size: 1
+          Type: int
+          Value:
+              0x0: Unknown 1
+              0x1: Unknown 2
+              0x3: Unknown 3
+              0x10: Unknown 4
+              0x11: Unknown 5
+              0x20: Unknown 6
+              0x21: Unknown 7
+              0x23: Unknown 8
+              0x30: Unknown 9
+              0x31: Unknown 10
+              0x71: Unknown 11
+        - Name: Icon
+          Size: 1
+          Type: int
+          Value:
+              0x0: Empty
+              0x1: Green Rupee
+              0x2: Blue Rupee
+              0x3: White Rupee
+              0x4: Red Rupee
+              0x5: Purple Rupee
+              0x6: White Rupee
+              0x7: Orange Rupee
+              0x8: Wallet 1
+              0x9: Wallet 2
+              0xA: Heart 1
+              0xB: Heart 2
+              0xC: Heart Piece
+              0xD: Heart Container
+              0xE: Magic jar (small)
+              0xF: Magic jar (large)
+              0x10: Heart 3
+              0x11: Stray Fairy
+              0x12: Heart 4
+              0x13: Heart 5
+              0x14: Bombs 1
+              0x15: Bombs 2
+              0x16: Bombs 3
+              0x17: Bombs 4
+              0x18: Bombs 5
+              0x19: Deku Stick
+              0x1A: Bombchu
+              0x1B: Bomb Bag
+              0x1C: Big Bomb Bag
+              0x1D: Bigger Bomb Bag
+              0x1E: Hero's Bow 1
+              0x1F: Hero's Bow 2
+              0x20: Hero's Bow 3
+              0x21: Hero's Bow 4
+              0x22: Quiver
+              0x23: Quiver (silver)
+              0x24: Quiver (gold)
+              0x25: Fire Arrow
+              0x26: Ice Arrow
+              0x27: Light Arrow
+              0x28: Deku Nut 1
+              0x29: Deku Nut 2
+              0x2A: Deku Nut 3
+              0x2B: Nothing 1
+              0x2C: Nothing 2
+              0x2D: Nothing 3
+              0x2E: Nothing 4
+              0x2F: Nothing 5
+              0x30: Nothing 6
+              0x31: Nothing 7
+              0x32: Hero's Shield
+              0x33: Mirror Shield
+              0x34: Powder Keg 1
+              0x35: Magic Beans
+              0x36: Pictograph Box
+              0x37: Kokiri Sword
+              0x38: Razor Sword
+              0x39: Gilded Sword
+              0x3A: Fierce Deity's Sword
+              0x3B: Great Fairy's Sword
+              0x3C: Small Key
+              0x3D: Boss Key
+              0x3E: Dungeon Map
+              0x3F: Compass
+              0x40: Power Key 2
+              0x41: Hookshot
+              0x42: Lens of Truth
+              0x43: Pictograph Box
+              0x44: Fishing Rod
+              0x45: Nothing 8
+              0x46: Nothing 9
+              0x47: Nothing 10
+              0x48: Nothing 11
+              0x49: Nothing 12
+              0x4A: Nothing 13
+              0x4B: Nothing 14
+              0x4C: Ocarina of Time
+              0x4D: Nothing 15
+              0x4E: Nothing 16
+              0x4F: Nothing 17
+              0x50: Notebook
+              0x51: Golden Skulltula
+              0x52: Nothing 18
+              0x53: Nothing 19
+              0x54: Nothing 20
+              0x55: Odolwa Mask
+              0x56: Goht Mask
+              0x57: Gyorg Mask
+              0x58: Twinmold Mask
+              0x59: Red Potion 1
+              0x5A: Empty Bottle
+              0x5B: Red Potion 2
+              0x5C: Green Potion
+              0x5D: Blue Potion
+              0x5E: Bottled Fairy
+              0x5F: Bottled Deku Princess
+              0x60: Milk
+              0x61: Milk (half-full)
+              0x62: Bottled Fish
+              0x63: Bottled Bug
+              0x64: Bottled Blue Fire
+              0x65: Bottled Poe
+              0x66: Bottled Big Poe
+              0x67: Spring Water
+              0x68: Hot Sprint Water
+              0x69: Bottled Zora Eggs
+              0x6A: Bottled Gold Dust 1
+              0x6B: Bottled Mushroom
+              0x6C: Nothing 21
+              0x6D: Nothing 22
+              0x6E: Bottled Seahorse 1
+              0x6F: Chateau Romani 1
+              0x70: Bottled Eel 1
+              0x71: Nothing 23
+              0x72: Nothing 24
+              0x73: Nothing 25
+              0x74: Nothing 26
+              0x75: Nothing 27
+              0x76: Nothing 28
+              0x77: Nothing 29
+              0x78: Deku Mask
+              0x79: Goron Mask
+              0x80: Zora Mask
+              0x81: Fierce Deity Mask
+              0x82: Romani Mask
+              0x83: Circus Leader's Mask
+              0x84: Postman's Hat
+              0x85: Couple's Mask
+              0x86: Great Fairy's Mask
+              0x87: Gibdo Mask
+              0x88: Don Gero's Mask
+              0x89: Kamaro's Mask
+              0x8A: Captain's Hat
+              0x8B: Stone Mask
+              0x8C: Bremen Mask
+              0x8D: Blast Mask
+              0x8E: Mask of Scents
+              0x8F: Giant's Mask
+              0x90: Nothing 30
+              0x91: Chateau Romani 2
+              0x92: Milk
+              0x93: Bottled Gold Dust 2
+              0x94: Bottled Eel 2
+              0x95: Bottled Seahorse 2
+              0x96: Moon's Tear
+              0x97: Title Deed
+              0x98: Green Title Deed
+              0x99: Red Title Deed
+              0x9A: Blue Title Deed
+              0x9B: Nothing 30
+              0x9C: Nothing 31
+              0x9D: Nothing 32
+              0x9E: Nothing 33
+              0x9F: Nothing 34
+              0xA0: Room Key
+              0xA1: Letter to Mama
+              0xA2: Nothing 35
+              0xA3: Nothing 36
+              0xA4: Nothing 37
+              0xA4: Nothing 38
+              0xA5: Nothing 39
+              0xA6: Nothing 40
+              0xA7: Nothing 41
+              0xA8: Nothing 42
+              0xA9: Nothing 43
+              0xAA: Letter to Kafei
+              0xAB: Pendant of Memories
+              0xAC: Nothing 44
+              0xAD: Nothing 45
+              0xAE: Nothing 46
+              0xAF: Nothing 47
+              0xB0: Nothing 48
+              0xB1: Nothing 49
+              0xB2: Nothing 50
+              0xB3: Map 1
+              0xB4: Map 2
+              0xB5: Map 3
+              0xB6: Map 4
+              0xB7: Map 5
+              0xB8: Map 6
+              0xB9: Map 7
+              0xBA: Nothing 51
+              0xBB: Nothing 52
+              0xBC: Nothing 53
+              0xBD: Nothing 54
+              0xBE: Nothing 55
+              0xBF: Nothing 56
+              0xC0: Nothing 57
+              0xC1: Nothing 58
+              0xC2: Nothing 59
+              0xC3: Nothing 60
+              0xC4: Nothing 61
+              0xC5: Nothing 62
+              0xC6: Nothing 63
+              0xC7: Nothing 64
+              0xC8: Nothing 65
+              0xC9: Nothing 66
+              0xCA: Nothing 67
+              0xCB: Nothing 68
+              0xCC: Nothing 69
+              0xCD: Nothing 70
+              0xCE: Nothing 71
+              0xCF: Nothing 72
+              0xD0: Nothing 73
+              0xD1: Nothing 74
+              0xD2: Nothing 75
+              0xD3: Nothing 76
+              0xD4: Nothing 77
+              0xD5: Nothing 78
+              0xD6: Nothing 79
+              0xD7: Nothing 80
+              0xD8: Small Black Line 1
+              0xD9: Small Black Line 2
+              0xDA: Small Black Line 3
+              0xDB: Small Black Line 4
+              0xDC: Anju
+              0xDD: Kafei
+              0xDE: Curiosity Shop Man
+              0xDF: Bomb Shop Lady
+              0xE0: Romani
+              0xE1: Cremia
+              0xE2: Mayor
+              0xE3: Madame Aroma
+              0xE4: Toto
+              0xE5: Gorman
+              0xE6: Postman
+              0xE7: Rosa Sisters
+              0xE8: Hand (???)
+              0xE9: Anju's Grandmother
+              0xEA: Kamaro
+              0xEB: Grog
+              0xEC: Gorman Brothers
+              0xED: Shiro
+              0xEE: Guru-Guru
+              0xEF: Bombers
+              0xF0: Exclamation Mark
+              0xF1: Nothing 81
+              0xF2: Nothing 82
+              0xF3: Nothing 83
+              0xF4: Nothing 84
+              0xF5: Nothing 85
+              0xF6: Nothing 86
+              0xF7: Nothing 87
+              0xF8: Nothing 88
+              0xF9: Nothing 89
+              0xFA: Nothing 90
+              0xFB: Nothing 91
+              0xFC: Nothing 91
+              0xFD: Nothing 92
+              0xFE: None
+              0xFF: Nothing 93
+        - Name: Next Block
+          Size: 2
+          Type: int
+          Value: 0xFFFF
+        - Name: Cost
+          Size: 2
+          Type: int
+          Value: 0xFFFF
+CONTROL_CODES:
+    0x0:
+        Replace: white
+    0x1:
+        Replace: red
+    0x2:
+        Replace: green
+    0x3:
+        Replace: dark blue
+    0x4:
+        Replace: yellow
+    0x5:
+        Replace: light blue
+    0x6:
+        Replace: pink
+    0x7:
+        Replace: silver
+    0x8:
+        Replace: orange
+    0x0B:
+        Replace: minimum hits
+    0x0C:
+        Replace: nth stray fairy found
+    0x0D:
+        Replace: nth gold skulltula found
+    0x11:
+        Replace: newline
+    0x1B:
+        Size: 3
+    0x1C:
+        Size: 3
+    0x1D:
+        Size: 3
+    0x1E:
+        Size: 3
+    0x1F:
+        Size: 3
+    0xBF:
+        Replace: end
