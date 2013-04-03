@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>1000</width>
     <height>600</height>
    </rect>
   </property>
@@ -26,30 +26,6 @@
     <property name="sizeConstraint">
      <enum>QLayout::SetDefaultConstraint</enum>
     </property>
-    <item row="0" column="0">
-     <widget class="QTreeWidget" name="FileTree">
-      <property name="maximumSize">
-       <size>
-        <width>200</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="animated">
-       <bool>true</bool>
-      </property>
-      <property name="columnCount">
-       <number>1</number>
-      </property>
-      <attribute name="headerVisible">
-       <bool>false</bool>
-      </attribute>
-      <column>
-       <property name="text">
-        <string notr="true">1</string>
-       </property>
-      </column>
-     </widget>
-    </item>
     <item row="0" column="1">
      <widget class="QWidget" name="FileArea" native="true">
       <property name="sizePolicy">
@@ -60,6 +36,16 @@
       </property>
      </widget>
     </item>
+    <item row="0" column="0">
+     <widget class="QListView" name="FileList">
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>16777215</height>
+       </size>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="Menu">
@@ -67,7 +53,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1000</width>
      <height>23</height>
     </rect>
    </property>
@@ -92,6 +78,9 @@
      <string>Actions</string>
     </property>
     <addaction name="actionCompile"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport"/>
+    <addaction name="actionImport"/>
    </widget>
    <widget class="QMenu" name="MenuHelp">
     <property name="title">
@@ -99,8 +88,15 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="MenuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="actionShow_Hidden_Files"/>
+   </widget>
    <addaction name="MenuFile"/>
    <addaction name="MenuActions"/>
+   <addaction name="MenuOptions"/>
    <addaction name="MenuHelp"/>
   </widget>
   <widget class="QStatusBar" name="StatusBar"/>
@@ -185,6 +181,33 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Export File</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionShow_Hidden_Files">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Hidden Files</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="text">
+    <string>Import File</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
    </property>
   </action>
  </widget>

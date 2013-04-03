@@ -1,4 +1,4 @@
-# DialogText
+# TextDialog
 # Handles dialog text editing.
 
 from copy import deepcopy
@@ -29,24 +29,34 @@ def ReplaceControlCode(matchObj):
     return returnBytes
 
 
-class DialogText(File):
+class TextDialog(File):
     """The dialog text editor class."""
 
     DISPLAY = True
-    LABEL = "Text - Dialog"
-    REQUIRED = ["UNKNOWN1"]
+    DISPLAY_NAME = "Text - Dialog"
+    EXPORT_NAME = "TEXT_DIALOGUE.ztxt"
+    EXPORT_TYPE = "Zelda Text Bank (*.ztxt)"
+    IMPORT = False
 
-    def __init__(self, label, data):
+    def __init__(self, label, data, parent):
         """Loads the text blocks."""
 
-        super().__init__(label, data)
+        super().__init__(label, data, parent)
         self.blocks = {}
         self.tableStart = None
         self.tableEnd = None
 
-    def getData(self, compiling=False):
+    def finishSetup(self):
+        """Called when the project has loaded all files."""
+
+        project = self.parent()
+        f = project.files["UNKNOWN1"]
+        self.blocks = self.loadBlocks(f.rawData)
+
+    def getRawData(self, form):
         """Rebuilds the data before returning it."""
 
+        project = self.parent()
         data = bytearray()
         table = bytearray()
         for b in sorted(self.blocks):
@@ -56,17 +66,9 @@ class DialogText(File):
             table += bytes([0, 0, 8])
             table += address.to_bytes(3, "big")
         self.rawData = data
-        print(hex(self.tableStart), hex(self.tableEnd))
-        self._files["UNKNOWN1"].rawData[self.tableStart:self.tableEnd] = table
+        project.files["UNKNOWN1"].rawData[self.tableStart:self.tableEnd] = table
         self.tableEnd = self.tableStart + len(table)
-        return super().getData(compiling)
-
-    def giveFile(self, label, fileObject):
-        """Gives this file a required file."""
-
-        super().giveFile(label, fileObject)
-        if label == "UNKNOWN1":
-            self.blocks = self.loadBlocks(self._files[label].rawData)
+        return super().getRawData(form)
 
     def loadBlocks(self, data):
         """Loads the text blocks from the text table."""
@@ -87,7 +89,7 @@ class DialogText(File):
     def getBlock(self, address):
         """Gets the text block at the specified address."""
 
-        block = TextBlock(self.setUnsaved)
+        block = TextBlock()
         d = self.rawData
         i = address
 
@@ -315,6 +317,7 @@ class DialogText(File):
         except ValueError:
             return
         self.blocks[idx]["Cost"] = value
+        self.setSaved(False)
 
     def updateNextBlock(self, value):
         """Updates the next text block's index."""
@@ -327,6 +330,7 @@ class DialogText(File):
         except ValueError:
             return
         self.blocks[idx]["Next Block"] = value
+        self.setSaved(False)
 
     def updateIcon(self, value):
         """Updates the block's text box icon."""
@@ -335,6 +339,7 @@ class DialogText(File):
         if idx is None or not isinstance(value, int):
             return
         self.blocks[idx]["Icon"] = self.IconInput.itemData(value)
+        self.setSaved(False)
 
     def updateType(self, value):
         """Updates the block's text box type."""
@@ -343,6 +348,7 @@ class DialogText(File):
         if idx is None or not isinstance(value, int):
             return
         self.blocks[idx]["Type"] = self.TypeInput.itemData(value)
+        self.setSaved(False)
 
     def updatePosition(self, value):
         """Updates the block's text box position."""
@@ -351,6 +357,7 @@ class DialogText(File):
         if idx is None or not isinstance(value, int):
             return
         self.blocks[idx]["Position"] = self.PositionInput.itemData(value)
+        self.setSaved(False)
 
     def updateText(self):
         """Updates the current block's text."""
@@ -359,6 +366,7 @@ class DialogText(File):
         if idx is None:
             return
         self.blocks[idx]["Text"] = self.BlockEdit.toPlainText()
+        self.setSaved(False)
 
     def createBlock(self):
         """Creates a new text block, if possible."""
@@ -373,8 +381,9 @@ class DialogText(File):
                     idx += 1
             except KeyError:
                 pass
-            self.blocks[idx] = TextBlock(self.setUnsaved, True)
+            self.blocks[idx] = TextBlock(True)
             self.goToBlock(idx)
+            self.setSaved(False)
 
     def deleteBlock(self):
         """Deletes the current text block."""
@@ -385,18 +394,17 @@ class DialogText(File):
         del self.blocks[idx]
         if not self.goToNearbyBlock(-1):
             self.toggleEditorArea(False)
-        self.setUnsaved()
+        self.setSaved(False)
 
 
 class TextBlock(dict):
     """A class to manage a text block's data."""
 
-    def __init__(self, setUnsaved, new=False):
+    def __init__(self, new=False):
         """Creates the empty data container."""
 
         super(dict).__init__()
         self.rawData = bytearray()
-        self.setUnsaved = setUnsaved
         if new:
             data = bytearray()
             for entry in DATA["TEXT"]["HEADER"]["Entries"]:
@@ -410,13 +418,11 @@ class TextBlock(dict):
             data += bytes([0xFF] * 4)
             self["Text"] = "{end}"
             self.rawData += data + (0xBF).to_bytes(1, "big")
-            self.setUnsaved()
 
     def __setitem__(self, key, value):
         """Modifies the raw data appropriately."""
 
         if self.rawData:
-            old = deepcopy(self.rawData)
             if key != "Text":
                 r = None
                 i = 0
@@ -439,6 +445,4 @@ class TextBlock(dict):
                               ReplaceControlCode, text)
                 r = DATA["TEXT"]["HEADER"]["Size"]
                 self.rawData[r:] = bytes(text)
-            if self.rawData != old:
-                self.setUnsaved()
         super().__setitem__(key, value)

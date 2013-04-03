@@ -39,19 +39,20 @@ class ROM(BytesIO):
         self.seek(DATA["BLOCKS"]["FILESYSTEM"] + 0x30)
         files = []
         fileEntry = self.read(16)
-        d = self.getvalue()
+        b = self.getbuffer()
         while fileEntry != bytes([0] * 16):
             start = int.from_bytes(fileEntry[:4], "big")
             end = int.from_bytes(fileEntry[4:8], "big")
-            files.append([start, end, d[start:end]])
+            files.append([start, end, b[start:end]])
             fileEntry = self.read(16)
+        del b
         return files
 
     def updateFiles(self, projectFiles):
         """Update the ROM data's files."""
 
         romFiles = self.getFiles()
-        data = bytearray(self.getvalue())
+        data = self.getbuffer()
         i = DATA["BLOCKS"]["FILESYSTEM"] + 0x30
         for f in romFiles:
             if f[0] in projectFiles:
@@ -85,7 +86,7 @@ class ROM(BytesIO):
         """Calculates the CRCs for the ROM and returns them as two DWORDs."""
 
         M = 0xFFFFFFFF
-        v = self.getvalue()
+        v = self.getbuffer()
         t1 = t2 = t3 = t4 = t5 = t6 = ROM.SEED & M
         d = r = None
         i = ROM.CRC_START
@@ -104,6 +105,7 @@ class ROM(BytesIO):
             a = 0x40 + 0x0710 + (i & 0xFF)
             t1 += int.from_bytes(v[a:a + 4], "big") ^ d
             i += 4
+        del v
         crc1 = ((t6 ^ t4 ^ t3) & M).to_bytes(4, "big")
         crc2 = ((t5 ^ t2 ^ t1) & M).to_bytes(4, "big")
         return crc1, crc2
@@ -115,6 +117,6 @@ class ROM(BytesIO):
             f = open(romFilePath, "wb")
         except IOError:
             return False
-        f.write(self.getvalue())
+        f.write(self.getbuffer())
         f.close()
         return True

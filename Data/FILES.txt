@@ -1,2 +1,2 @@
-TEXT_DATA: DialogText
+TEXT_DIALOG: TextDialog
 UNKNOWN1: File

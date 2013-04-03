@@ -5,9 +5,9 @@ import sys
 
 from Data import *
 
-from Files.DialogText import *
+from Files.TextDialog import *
 
-def loadFile(f):
+def loadFile(f, parent):
     """Loads the file if MMEditor can handle it."""
 
     FileClass = None
@@ -21,14 +21,14 @@ def loadFile(f):
     if not FileClass:
         return None
     try:
-        fileObject = FileClass(fileBlock, f[2])
+        fileObject = FileClass(fileBlock, f[2], parent)
     except AttributeError:
         return None
     return fileObject
 
-def openFile(label, data):
+def openFile(label, data, parent):
     """Opens a project file."""
 
     FileClass = getattr(sys.modules[__name__],  DATA["FILES"][label])
-    fileObject = FileClass(label, data)
+    fileObject = FileClass(label, data, parent)
     return fileObject

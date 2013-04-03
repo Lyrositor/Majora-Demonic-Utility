@@ -34,6 +34,7 @@ class MMEditor(QObject):
 
         # Initialize variables.
         self.currentPath = None
+        self.showHidden = False
         self.project = None
 
         # Connect the actions to their respective slots.
@@ -42,113 +43,117 @@ class MMEditor(QObject):
         self.ui.actionSave.triggered.connect(self.saveProject)
         self.ui.actionSave_as.triggered.connect(lambda x=1: self.saveProject(x))
         self.ui.actionCompile.triggered.connect(self.compileProject)
+        self.ui.actionExport.triggered.connect(self.exportFile)
+        self.ui.actionImport.triggered.connect(self.importFile)
+        self.ui.actionShow_Hidden_Files.triggered.connect(self.toggleHidden)
         self.ui.actionClose.triggered.connect(self.closeProject)
         self.ui.actionQuit.triggered.connect(QCoreApplication.instance().quit)
 
-        # Connect the file tree signals.
-        self.ui.FileTree.currentItemChanged.connect(self.changeSelection)
+    def loadProject(self, project):
+        """Activates or deactivates the project GUI elements."""
 
-    def __setattr__(self, name, value):
-        """Handles project and file switching."""
-
-        if name == "project":
-            if value is None:
-                self.ui.setWindowTitle("Majora's Mask Editor")
-                self.ui.actionSave.setDisabled(True)
-                self.ui.actionSave_as.setDisabled(True)
-                self.ui.actionCompile.setDisabled(True)
-                self.ui.actionClose.setDisabled(True)
-            elif value[1] == "":
+        m = self.ui.FileList.model()
+        if project is None:
+            self.ui.setWindowTitle("Majora's Mask Editor")
+            self.ui.actionSave.setDisabled(True)
+            self.ui.actionSave_as.setDisabled(True)
+            self.ui.actionCompile.setDisabled(True)
+            self.ui.actionExport.setDisabled(True)
+            self.ui.actionImport.setDisabled(True)
+            self.ui.actionShow_Hidden_Files.setDisabled(True)
+            self.ui.actionClose.setDisabled(True)
+            if m:
+                self.ui.FileList.setModel(None)
+                m.deleteLater()
+        else:
+            if project.savePath == "":
                 projectName = NEW_PROJECT_NAME
             else:
-                projectName = os.path.basename(value[1])
-            if value is not None:
-                self.ui.setWindowTitle("{} - Majora's Mask Editor".format(
-                                       projectName))
-                self.ui.actionSave.setEnabled(True)
-                self.ui.actionSave_as.setEnabled(True)
-                self.ui.actionCompile.setEnabled(True)
-                self.ui.actionClose.setEnabled(True)
-        super().__setattr__(name, value)
+                projectName = os.path.basename(project.savePath)
+            self.ui.setWindowTitle("{} - Majora's Mask Editor".format(
+                                                               projectName))
+            self.ui.actionSave.setEnabled(True)
+            self.ui.actionSave_as.setEnabled(True)
+            self.ui.actionCompile.setEnabled(True)
+            self.ui.actionShow_Hidden_Files.setEnabled(True)
+            self.ui.actionClose.setEnabled(True)
+            self.ui.FileList.setModel(None)
+            if m and m is not project:
+                m.deleteLater()
+            i = len(project.files) - 1
+            for l in reversed(sorted(project.files)):
+                f = project.files[l]
+                if not f.DISPLAY and not self.showHidden:
+                    f.displaying = False
+                    project.removeRow(i)
+                else:
+                    f.displaying = True
+                i -= 1
+            self.ui.FileList.setModel(project)
+            s = self.ui.FileList.selectionModel()
+            s.currentChanged.connect(self.changeSelection)
+        return project
 
     def newProject(self):
         """Creates a new project from a ROM."""
 
-        c = self.closeProject()
-        if not c:
-            return
         romPath = QFileDialog.getOpenFileName(self.ui, "Open ROM",
                                               self.currentPath,
                                               "Z64 files (*.z64)")[0]
         if not romPath:
             return
-        if self.project:
-            self.saveProject()
-            self.closeProject()
+        c = self.closeProject()
+        if not c:
+            return
+        self.currentPath = os.path.dirname(romPath)
         project = Project(romPath, True)
         if not project:
             QMessageBox.critical(self.ui, "Error",
                                  "There was an error creating the project.")
             return
-        if self.project:
-            self.saveProject()
-        self.project = [project, ""]
-        self.createProjectTree(project)
+        self.project = self.loadProject(project)
 
     def openProject(self):
         """Opens an existing project file."""
 
-        c = self.closeProject()
-        if not c:
-            return
         projectPath = QFileDialog.getOpenFileName(self.ui, "Open Project",
                                                   self.currentPath,
                                                   "MME Project (*.mme)")[0]
         if not projectPath:
             return
-        if self.project and self.project[1] == projectPath:
+        c = self.closeProject()
+        if not c:
             return
-        elif self.project:
-            self.saveProject()
-            self.closeProject()
-        project = Project(projectPath, False)
+        self.currentPath = os.path.dirname(projectPath)
+        project = Project(projectPath)
         if not project:
-            QMessageBox.critical(self, "Error",
+            QMessageBox.critical(self.ui, "Error",
                                  "There was an error opening the project.")
             return
-        self.project = [project, projectPath]
-        self.createProjectTree(project)
+        self.project = self.loadProject(project)
 
     def saveProject(self, force=False):
         """Saves the project to a file."""
 
         if not self.project:
-            return
-        if not self.project[1] or force:
+            return True
+        if not self.project.savePath or force:
             name = DEFAULT_FILENAME
-            if self.project[1]:
-                name = self.project[1]
+            if self.project.savePath:
+                name = self.project.savePath
             savePath = QFileDialog.getSaveFileName(self.ui, "Save Project File",
                                                  name, "MME Project (*.mme)")[0]
         else:
-            savePath = self.project[1]
+            savePath = self.project.savePath
         if not savePath:
-            return
-        v = self.project[0].save(savePath)
+            return False
+        v = self.project.save(savePath)
         if not v:
             QMessageBox.critical(self.ui, "Error",
                                  "There was an error saving the project.")
-            return
-        self.project[1] = savePath
-        self.project = self.project
-
-    def createProjectTree(self, idx):
-        """Creates the project tree from its files."""
-
-        for b, f in self.project[0].files.items():
-            if f.DISPLAY:
-                self.ui.FileTree.addTopLevelItem(f)
-        self.ui.FileTree.sortItems(0, Qt.AscendingOrder)
+            return False
+        self.project = self.loadProject(self.project)
+        return True
 
     def compileProject(self):
         """Compiles the project's data to a ROM."""
@@ -160,7 +165,8 @@ class MMEditor(QObject):
                                               "Z64 files (*.z64)")[0]
         if not romPath:
             return
-        v = self.project[0].compile(romPath)
+        self.currentPath = os.path.dirname(romPath)
+        v = self.project.compile(romPath)
         if v:
             QMessageBox.information(self.ui, "Success",
                                     "Project successfully compiled to ROM!")
@@ -173,8 +179,8 @@ class MMEditor(QObject):
 
         if not self.project:
             return True
-        if not self.project[0].checkSaved():
-            name = os.path.basename(self.project[1])
+        if not self.project.checkSaved():
+            name = os.path.basename(self.project.savePath)
             if not name:
                 name = "your New Project"
             s = QMessageBox.question(self.ui, "Save Project?",
@@ -183,8 +189,8 @@ class MMEditor(QObject):
             if s == QMessageBox.Yes:
                 if not self.saveProject():
                     return False
-        self.ui.FileTree.clear()
-        self.project = None
+        self.project = self.loadProject(None)
+        self.changeSelection()
         return True
 
     def closeEvent(self, event):
@@ -196,14 +202,57 @@ class MMEditor(QObject):
                 return
         event.accept()
 
-    def changeSelection(self, current, previous):
+    def exportFile(self):
+        """Exports the current file into the appropriate format."""
+
+        f = self.getCurrentFile()
+        if f:
+            f.exportFile()
+
+    def importFile(self):
+        """Imports data into the current file."""
+
+        f = self.getCurrentFile()
+        if f:
+            f.exportFile()
+
+    def toggleHidden(self):
+        """Toggles whether or not hidden files are shown."""
+
+        if not self.project:
+            return
+        self.showHidden = self.ui.actionShow_Hidden_Files.isChecked()
+        self.project = self.loadProject(self.project)
+
+    def changeSelection(self, current=None, previous=None):
         """Called when the selection in the file tree changes."""
 
-        layout = self.ui.FileArea.layout()
-        if layout is not None:
-            QWidget().setLayout(layout)
+        self.ui.CentralWidget.layout().removeWidget(self.ui.FileArea)
+        self.ui.FileArea.setParent(None)
+        self.ui.FileArea.deleteLater()
+        self.ui.FileArea = QWidget()
+        self.ui.FileArea.setSizePolicy(QSizePolicy.Expanding,
+                                       QSizePolicy.Expanding)
+        self.ui.CentralWidget.layout().addWidget(self.ui.FileArea, 0, 1)
         if current:
-            current.displayArea(self.ui.FileArea)
+            f = self.project.getFile(current.row())
+            self.ui.actionExport.setEnabled(True)
+            if f.IMPORT:
+                self.ui.actionImport.setEnabled(True)
+            else:
+                self.ui.actionImport.setDisabled(True)
+            f.displayArea(self.ui.FileArea)
+        else:
+            self.ui.actionExport.setDisabled(True)
+            self.ui.actionImport.setDisabled(True)
+
+    def getCurrentFile(self):
+        """Gets the currently opened project file."""
+
+        s = self.ui.FileList.selectionModel.selection()
+        if self.project and len(s) == 1 and s[0] < self.project.rowCount():
+            return sorted(self.project.files)[s[0]]
+        return None
 
 ########
 # MAIN #

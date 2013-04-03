@@ -1,28 +1,33 @@
 # Project
 # Handles the project file (creation, saving, compilation).
 
-import struct
+from PySide.QtCore import *
 
 from Files import *
 from ROM import *
 
 # The header identifying files as MME project files.
-HEADER = b"MME" + bytes([0])
+HEADER = b"MME\0"
 
 
-class Project:
+class Project(QAbstractListModel):
     """A container for all the project data."""
 
-    def __init__(self, filePath, new):
+    def __init__(self, filePath, new=False):
         """Creates a new project or opens an existing one."""
 
+        super().__init__()
         self.files = {}
         if new:
             v = self.create(filePath)
+            self.savePath = ""
         else:
             v = self.open(filePath)
+            self.savePath = filePath
         if not v:
             return None
+
+    # Project methods.
 
     def create(self, romFilePath):
         """Creates a new project from a ROM."""
@@ -31,11 +36,12 @@ class Project:
         if not r:
             return False
         self.files = {}
-        for f in map(loadFile, r.getFiles()):
+        for f in map(lambda x: loadFile(x, self), r.getFiles()):
             if f:
                 self.files[f.label] = f
         r.close()
-        self.giveRequiredFiles()
+        for b, projectFile in self.files.items():
+            projectFile.finishSetup()
         return True
 
     def open(self, projectFilePath):
@@ -53,29 +59,21 @@ class Project:
             if not c:
                 break
             label = ""
-            while c != bytes([0]):
+            while c != b"\0":
                 label += str(c, "ascii")
                 c = f.read(1)
             size = b""
             while len(size) < 4:
                 c = f.read(1)
                 size += c
-            size = struct.unpack(">L", size)[0]
+            size = int.from_bytes(size, "big")
             data = f.read(size)
-            self.files[label] = openFile(label, data)
+            self.files[label] = openFile(label, data, self)
         f.close()
-        self.giveRequiredFiles()
         for b, projectFile in self.files.items():
-            projectFile.saved = True
+            projectFile.finishSetup()
+            projectFile.setSaved()
         return True
-
-    def giveRequiredFiles(self):
-        """Gives the required files to each file."""
-
-        for b, f in self.files.items():
-            if f.REQUIRED:
-                for req in f.REQUIRED:
-                    f.giveFile(req, self.files[req])
 
     def save(self, projectFilePath):
         """Save the project to a file."""
@@ -86,9 +84,10 @@ class Project:
             return False
         f.write(HEADER)
         for b, projectFile in self.files.items():
-            f.write(projectFile.getData())
-            projectFile.saved = True
+            f.write(projectFile.getRawData(0))
+            projectFile.setSaved()
         f.close()
+        self.savePath = projectFilePath
         return True
 
     def compile(self, romFilePath):
@@ -99,7 +98,7 @@ class Project:
             return False
         projectFiles = {}
         for b, f in self.files.items():
-            projectFiles[DATA["BLOCKS"][b]] = f.getData(True)
+            projectFiles[DATA["BLOCKS"][b]] = f.getRawData(1)
         r.updateFiles(projectFiles)
         r.updateCRCs()
         return r.writeToFile(romFilePath)
@@ -111,3 +110,29 @@ class Project:
             if not f.saved:
                 return False
         return True
+
+    def getFile(self, index):
+        """Gets the file at the specified index."""
+
+        files = [self.files[f] for f in sorted(self.files)
+                 if self.files[f].displaying]
+        return files[index]
+
+    # QAbstractListModel methods.
+
+    def rowCount(self, parent=QModelIndex()):
+        """Returns the number of files."""
+
+        i = 0
+        for l, f in self.files.items():
+            if f.displaying:
+                i += 1
+        return i
+
+    def data(self, index, role=Qt.DisplayRole):
+        """Returns the file associated with that index."""
+
+        if role == Qt.DisplayRole:
+            f = self.getFile(index.row())
+            return f.DISPLAY_NAME
+        return None

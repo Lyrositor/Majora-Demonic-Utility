@@ -6,55 +6,112 @@ import struct
 
 from PySide.QtCore import *
 from PySide.QtGui import *
-from PySide.QtWebKit import *
 
 from Data import *
 from UI import *
 
 
-class File(QTreeWidgetItem):
+class File(QObject):
     """The base class for all files."""
 
     DISPLAY = False
-    LABEL = "File"
-    REQUIRED = None
+    EXPORT_NAME = "DATA_{}-{}.zdata"
+    EXPORT_TYPE = "Zelda Data File (*.zdata)"
+    IMPORT = True
 
-    def __init__(self, label, data):
+    def __init__(self, label, data, parent):
         """Initialize the file."""
 
         # GUI.
-        super().__init__()
-        self.setText(0, self.__class__.LABEL)
+        super().__init__(parent)
+        try:
+            self.DISPLAY_NAME = self.__class__.DISPLAY_NAME
+        except AttributeError:
+            start = DATA["BLOCKS"][label]
+            end = DATA["BLOCKS"][label] + len(data)
+            self.DISPLAY_NAME = "{} - {}".format(hex(start), hex(end))
+            self.EXPORT_NAME = File.EXPORT_NAME.format(hex(start), hex(end))
 
         # Data.
-        self.label = label
+        self.displaying = self.__class__.DISPLAY
         self.fileArea = None
+        self.label = label
         self.rawData = bytearray(data)
         self.saved = False
-        self._files = {}
 
-    def getData(self, compiling=False):
-        """Returns the data which should be written to the project file."""
+    def finishSetup(self):
+        """Called when the project has loaded all files."""
+
+        pass
+
+    def getRawData(self, form):
+        """Returns the data which should be written to a file."""
 
         fileData = b""
-        if not compiling:
+        if form == 0:
             fileData += bytes(self.label, "ascii")
             fileData += bytes([0])
             fileData += len(self.rawData).to_bytes(4, "big")
-        fileData += self.rawData
+        if form == 1:
+            fileData += self.rawData  # TODO: Compress data.
+        else:
+            fileData += self.rawData
         return fileData
 
-    def giveFile(self, label, fileObject):
-        """Gives this file another required file."""
+    def setRawData(self, data):
+        """Sets the raw data to a new value."""
 
-        self._files[label] = fileObject
+        self.rawData = data
 
-    def setUnsaved(self):
-        """Sets the file to the "unsaved" state."""
+    def setSaved(self, saved=True):
+        """Sets the file to the "saved" or "unsaved" state."""
 
-        self.saved = False
+        self.saved = saved
 
     def displayArea(self, fileArea):
         """Sets up the file display area."""
 
-        pass
+        layout = QHBoxLayout()
+        self.exportButton = QPushButton("Export File")
+        self.exportButton.setFixedWidth(80)
+        self.exportButton.clicked.connect(self.exportFile)
+        layout.addWidget(self.exportButton)
+        layout.setAlignment(self.exportButton, Qt.AlignCenter)
+        self.importButton = QPushButton("Import File")
+        self.importButton.setFixedWidth(80)
+        self.importButton.clicked.connect(self.importFile)
+        layout.addWidget(self.importButton)
+        layout.setAlignment(self.importButton, Qt.AlignCenter)
+        fileArea.setLayout(layout)
+
+    def exportFile(self):
+        """Exports this file's data into the appropriate format."""
+
+        exportPath = QFileDialog.getSaveFileName(None, "Export File",
+                                          self.EXPORT_NAME, self.EXPORT_TYPE)[0]
+        if not exportPath:
+            return
+        exportFile = open(exportPath, "wb")
+        exportFile.write(self.getRawData(2))
+        exportFile.close()
+        fileName = os.path.basename(exportPath)
+        QMessageBox.information(QWidget(), "File Exported", "File was "
+                                "successfully exported to {}.".format(fileName))
+
+    def importFile(self):
+        """Imports file data from a file."""
+
+        importPath = QFileDialog.getOpenFileName(None, "Import File", "",
+                                                 self.EXPORT_TYPE)[0]
+        if not importPath:
+            return
+        importFile = open(importPath, "rb")
+        newData = importFile.read()
+        importFile.close()
+        self.setRawData(newData)
+        if self.getRawData(2) != newData:
+            self.setSaved(False)
+        fileName = os.path.basename(importPath)
+        QMessageBox.information(QWidget(), "File Imported", "File was "
+                                "successfully imported from "
+                                "{}.".format(fileName))
