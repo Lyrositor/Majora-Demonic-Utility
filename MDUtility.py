@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# MMEditor
-# Majora's Mask Editor
+# MDUtility
+# Majora's Demonic Utility
 
 import os
 import sys
@@ -16,14 +16,14 @@ from UI import *
 NEW_PROJECT_NAME = "New Project"
 
 # The default filename for a new project.
-DEFAULT_FILENAME = "Project.mme"
+DEFAULT_FILENAME = "Project.mdu"
 
 # The UI file for the main window.
 UI_FILE = os.path.join("UI", "Main.ui")
 
 
-class MMEditor(QObject):
-    """The Majora's Mask Editor class."""
+class MDUtility(QObject):
+    """The Majora's Demonic Utility class."""
 
     def __init__(self):
         """Initializes the application and opens the main window."""
@@ -54,7 +54,7 @@ class MMEditor(QObject):
 
         m = self.ui.FileList.model()
         if project is None:
-            self.ui.setWindowTitle("Majora's Mask Editor")
+            self.ui.setWindowTitle("Majora's Demonic Utility")
             self.ui.actionSave.setDisabled(True)
             self.ui.actionSave_as.setDisabled(True)
             self.ui.actionCompile.setDisabled(True)
@@ -70,7 +70,7 @@ class MMEditor(QObject):
                 projectName = NEW_PROJECT_NAME
             else:
                 projectName = os.path.basename(project.savePath)
-            self.ui.setWindowTitle("{} - Majora's Mask Editor".format(
+            self.ui.setWindowTitle("{} - Majora's Demonic Utility".format(
                                                                projectName))
             self.ui.actionSave.setEnabled(True)
             self.ui.actionSave_as.setEnabled(True)
@@ -118,7 +118,7 @@ class MMEditor(QObject):
 
         projectPath = QFileDialog.getOpenFileName(self.ui, "Open Project",
                                                   self.currentPath,
-                                                  "MME Project (*.mme)")[0]
+                                                  "MDU Project (*.mdu)")[0]
         if not projectPath:
             return
         c = self.closeProject()
@@ -142,7 +142,7 @@ class MMEditor(QObject):
             if self.project.savePath:
                 name = self.project.savePath
             savePath = QFileDialog.getSaveFileName(self.ui, "Save Project File",
-                                                 name, "MME Project (*.mme)")[0]
+                                                 name, "MDU Project (*.mdu)")[0]
         else:
             savePath = self.project.savePath
         if not savePath:
@@ -260,5 +260,5 @@ class MMEditor(QObject):
 
 if __name__ == "__main__":
     a = QApplication(sys.argv)
-    m = MMEditor()
+    m = MDUtility()
     sys.exit(a.exec_())

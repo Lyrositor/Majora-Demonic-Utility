@@ -6,8 +6,8 @@ from PySide.QtCore import *
 from Files import *
 from ROM import *
 
-# The header identifying files as MME project files.
-HEADER = b"MME\0"
+# The header identifying files as MDU project files.
+HEADER = b"MDU\0"
 
 
 class Project(QAbstractListModel):

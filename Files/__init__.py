@@ -8,7 +8,7 @@ from Data import *
 from Files.TextDialog import *
 
 def loadFile(f, parent):
-    """Loads the file if MMEditor can handle it."""
+    """Loads the file if it can be handled."""
 
     FileClass = None
     start = f[0]

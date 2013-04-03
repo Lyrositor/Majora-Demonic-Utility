@@ -1,4 +1,4 @@
-MMEditor
+Majora's Demonic Utility
 ========
 
-Majora's Mask Editor
+An all-in-one editor for **The Legend of Zelda: Majora's Mask**.
