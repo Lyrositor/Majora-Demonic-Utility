@@ -19,7 +19,7 @@ def decode(src):
     validBitCount = 0
     currCodeByte = 0
     decompressedSize = int.from_bytes(src[4:8], "big") & M
-    src = list(int.from_bytes(x, "big") for x in src)
+    src = list(src)
     dst = list([0] * decompressedSize)
     while dstPlace < decompressedSize:
 
