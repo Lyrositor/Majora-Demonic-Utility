@@ -34,7 +34,7 @@ class TextDialog(File):
 
     DISPLAY = True
     DISPLAY_NAME = "Text - Dialog"
-    EXPORT_NAME = "TEXT_DIALOGUE.ztxt"
+    EXPORT_NAME = "TEXT_DIALOG.ztxt"
     EXPORT_TYPE = "Zelda Text Bank (*.ztxt)"
     IMPORT = False
 
@@ -50,31 +50,38 @@ class TextDialog(File):
         """Called when the project has loaded all files."""
 
         project = self.parent()
-        f = project.files["UNKNOWN1"]
+        f = project.files["DATA_TABLE"]
         self.blocks = self.loadBlocks(f.rawData)
 
-    def getRawData(self, form):
-        """Rebuilds the data before returning it."""
+    def beginSave(self):
+        """Called when the project is about to be saved/compiled."""
 
         project = self.parent()
-        data = bytearray()
+        address = 0
         table = bytearray()
         for b in sorted(self.blocks):
-            address = len(data)
-            data += self.blocks[b].rawData
             table += b.to_bytes(2, "big")
             table += bytes([0, 0, 8])
             table += address.to_bytes(3, "big")
-        self.rawData = data
-        project.files["UNKNOWN1"].rawData[self.tableStart:self.tableEnd] = table
+            address += len(self.blocks[b].rawData)
+        project.files["DATA_TABLE"].rawData[self.tableStart:self.tableEnd] = table
         self.tableEnd = self.tableStart + len(table)
+
+    def getRawData(self, form=1):
+        """Rebuilds the data before returning it."""
+
+        data = bytearray()
+        for b in sorted(self.blocks):
+            data += self.blocks[b].rawData
+        self.rawData = data
+        self.beginSave()
         return super().getRawData(form)
 
     def loadBlocks(self, data):
         """Loads the text blocks from the text table."""
 
         b = DATA["BLOCKS"]
-        self.tableStart = b["TEXT_TABLE"] - b["UNKNOWN1"]
+        self.tableStart = b["TEXT_TABLE"] - b["DATA_TABLE"]
         i = self.tableStart
         d = data
         blocks = {}
@@ -316,8 +323,10 @@ class TextDialog(File):
             value = int(value, 16)
         except ValueError:
             return
+        oldValue = self.blocks[idx]["Cost"]
         self.blocks[idx]["Cost"] = value
-        self.setSaved(False)
+        if oldValue != value:
+            self.setSaved(False)
 
     def updateNextBlock(self, value):
         """Updates the next text block's index."""
@@ -329,8 +338,10 @@ class TextDialog(File):
             value = int(value, 16)
         except ValueError:
             return
+        oldValue = self.blocks[idx]["Next Block"]
         self.blocks[idx]["Next Block"] = value
-        self.setSaved(False)
+        if oldValue != value:
+            self.setSaved(False)
 
     def updateIcon(self, value):
         """Updates the block's text box icon."""
@@ -338,8 +349,10 @@ class TextDialog(File):
         idx = self.getCurrentBlockID()
         if idx is None or not isinstance(value, int):
             return
+        oldValue = self.blocks[idx]["Icon"]
         self.blocks[idx]["Icon"] = self.IconInput.itemData(value)
-        self.setSaved(False)
+        if oldValue != value:
+            self.setSaved(False)
 
     def updateType(self, value):
         """Updates the block's text box type."""
@@ -347,8 +360,10 @@ class TextDialog(File):
         idx = self.getCurrentBlockID()
         if idx is None or not isinstance(value, int):
             return
+        oldValue = self.blocks[idx]["Type"]
         self.blocks[idx]["Type"] = self.TypeInput.itemData(value)
-        self.setSaved(False)
+        if oldValue != value:
+            self.setSaved(False)
 
     def updatePosition(self, value):
         """Updates the block's text box position."""
@@ -356,8 +371,10 @@ class TextDialog(File):
         idx = self.getCurrentBlockID()
         if idx is None or not isinstance(value, int):
             return
+        oldValue = self.blocks[idx]["Position"]
         self.blocks[idx]["Position"] = self.PositionInput.itemData(value)
-        self.setSaved(False)
+        if oldValue != value:
+            self.setSaved(False)
 
     def updateText(self):
         """Updates the current block's text."""
@@ -365,8 +382,10 @@ class TextDialog(File):
         idx = self.getCurrentBlockID()
         if idx is None:
             return
+        oldValue = self.blocks[idx]["Text"]
         self.blocks[idx]["Text"] = self.BlockEdit.toPlainText()
-        self.setSaved(False)
+        if oldValue != self.BlockEdit.toPlainText():
+            self.setSaved(False)
 
     def createBlock(self):
         """Creates a new text block, if possible."""

@@ -2,8 +2,14 @@
 # Takes care of reading and writing to a Majora's Mask ROM.
 
 from io import BytesIO
+from hashlib import md5
+import struct
 
 from Data import *
+import Yaz0
+
+# The valid Majora's Mask MD5 hex digest.
+MM_MD5 = "2a0a8acb61538235bc1094d297fb6556"
 
 
 class ROM(BytesIO):
@@ -20,6 +26,8 @@ class ROM(BytesIO):
         v = self.readFromFile(romFilePath)
         if not v:
             return None
+        if md5(self.getbuffer()).hexdigest() != MM_MD5:
+            return None
 
     def readFromFile(self, romFilePath):
         """Reads a ROM's data."""
@@ -33,39 +41,86 @@ class ROM(BytesIO):
         f.close()
         return True
 
-    def getFiles(self):
-        """Returns a list of all the files in the ROM."""
+    def getFiles(self, allFiles=False):
+        """Returns a list of all usable files in the ROM."""
 
         self.seek(DATA["BLOCKS"]["FILESYSTEM"] + 0x30)
         files = []
         fileEntry = self.read(16)
-        b = self.getbuffer()
+        d = self.getvalue()
         while fileEntry != bytes([0] * 16):
-            start = int.from_bytes(fileEntry[:4], "big")
-            end = int.from_bytes(fileEntry[4:8], "big")
-            files.append([start, end, b[start:end]])
+            v_start, v_end, p_start, p_end = struct.unpack(">LLLL", fileEntry)
+            # Is the file not processable?
+            if p_start in [0, 0xFFFFFFFF] and p_end in [0, 0xFFFFFFFF]:
+                if allFiles:
+                    files.append(None)
+                fileEntry = self.read(16)
+                continue
+
+            # Is the file decompressed?
+            if p_end == 0:
+                size = v_end - v_start
+            else:
+                size = p_end - p_start
+            files.append([v_start, v_end, p_start, p_end,
+                          d[p_start:p_start + size]])
             fileEntry = self.read(16)
-        del b
         return files
 
     def updateFiles(self, projectFiles):
         """Update the ROM data's files."""
 
-        romFiles = self.getFiles()
-        data = self.getbuffer()
+        romFiles = self.getFiles(True)
+        data = bytearray(self.getvalue())
         i = DATA["BLOCKS"]["FILESYSTEM"] + 0x30
+        p_offset = 0
         for f in romFiles:
+            if not f:
+                i += 16
+                continue
+
+            # Load the old file's data.
+            v_oldStart, v_oldEnd, p_oldStart, p_oldEnd, oldData = f
+            v_oldSize = v_oldEnd - v_oldStart
+            p_oldSize = p_oldEnd - p_oldStart
+
             if f[0] in projectFiles:
-                start = f[0]
-                end = f[1]
-                oldSize = end - start
-                fileData = projectFiles[f[0]]
-                if len(fileData) < oldSize:
-                    fileData += bytes([0] * (oldSize - len(fileData)))
-                newSize = len(fileData)
-                data[start:start + newSize] = fileData
-                data[i:i + 4] = data[i + 8:i + 12] = start.to_bytes(4, "big")
-                data[i + 4: i + 8] = (start + newSize).to_bytes(4, "big")
+                # Load the new file's data.
+                projectFile = projectFiles[f[0]]
+                newData = projectFile.getRawData()
+
+                # Prepare the file data.
+                if len(newData) < v_oldSize:
+                    newData += bytes([0] * (v_oldSize - len(newData)))
+                v_newSize = len(newData)
+
+                # Compress the data if needed.
+                compress = DATA["FILES"][projectFile.label]["Compress"]
+                if compress:
+                    newData = Yaz0.encode(newData).getData()
+                p_newSize = len(newData)
+            else:
+                v_newSize = v_oldSize
+                p_newSize = p_oldSize
+                newData = oldData
+
+            # Write the new addresses and data.
+            v_newStart = v_oldStart
+            v_newEnd = v_oldStart + v_newSize
+            p_newStart = p_oldStart + p_offset
+            if p_oldEnd not in [0, 0xFFFFFFFF]:
+                p_newEnd = p_oldStart + p_offset + p_newSize
+            else:
+                p_newEnd = p_oldEnd
+                p_oldSize = v_oldEnd - v_oldStart
+                p_newSize = p_oldSize
+            print(hex(v_oldStart), hex(v_oldEnd), hex(p_oldStart), hex(p_oldEnd))
+            print(hex(v_newStart), hex(v_newEnd), hex(p_newStart), hex(p_newEnd))
+            data[i:i + 16] = struct.pack(">LLLL", v_newStart, v_newEnd,
+                                         p_newStart, p_newEnd)
+            data[p_newStart:p_newStart + p_oldSize] = newData
+            p_offset += p_newSize - p_oldSize
+
             i += 16
         self.seek(0)
         self.truncate()

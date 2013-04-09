@@ -1,2 +1,6 @@
-TEXT_DIALOG: TextDialog
-UNKNOWN1: File
+DATA_TABLE:
+    Type: File
+    Compress: True
+TEXT_DIALOG:
+    Type: TextDialog
+    Compress: False

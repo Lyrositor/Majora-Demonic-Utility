@@ -9,6 +9,7 @@ from PySide.QtGui import *
 
 from Data import *
 from UI import *
+import Yaz0
 
 
 class File(QObject):
@@ -36,7 +37,7 @@ class File(QObject):
         self.displaying = self.__class__.DISPLAY
         self.fileArea = None
         self.label = label
-        self.rawData = bytearray(data)
+        self.rawData = Yaz0.decode(data)
         self.saved = False
 
     def finishSetup(self):
@@ -44,7 +45,12 @@ class File(QObject):
 
         pass
 
-    def getRawData(self, form):
+    def beginSave(self):
+        """Called when the project is about to be saved/compiled."""
+
+        pass
+
+    def getRawData(self, form=1):
         """Returns the data which should be written to a file."""
 
         fileData = b""
@@ -52,10 +58,7 @@ class File(QObject):
             fileData += bytes(self.label, "ascii")
             fileData += bytes([0])
             fileData += len(self.rawData).to_bytes(4, "big")
-        if form == 1:
-            fileData += self.rawData  # TODO: Compress data.
-        else:
-            fileData += self.rawData
+        fileData += self.rawData
         return fileData
 
     def setRawData(self, data):
@@ -92,7 +95,7 @@ class File(QObject):
         if not exportPath:
             return
         exportFile = open(exportPath, "wb")
-        exportFile.write(self.getRawData(2))
+        exportFile.write(self.getRawData())
         exportFile.close()
         fileName = os.path.basename(exportPath)
         QMessageBox.information(QWidget(), "File Exported", "File was "
@@ -109,7 +112,7 @@ class File(QObject):
         newData = importFile.read()
         importFile.close()
         self.setRawData(newData)
-        if self.getRawData(2) != newData:
+        if self.getRawData() != newData:
             self.setSaved(False)
         fileName = os.path.basename(importPath)
         QMessageBox.information(QWidget(), "File Imported", "File was "

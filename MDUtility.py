@@ -33,6 +33,7 @@ class MDUtility(QObject):
         self.ui.show()
 
         # Initialize variables.
+        self.currentFile = None
         self.currentPath = None
         self.showHidden = False
         self.project = None
@@ -112,6 +113,7 @@ class MDUtility(QObject):
                                  "There was an error creating the project.")
             return
         self.project = self.loadProject(project)
+        self.setStatus("Created new project...")
 
     def openProject(self):
         """Opens an existing project file."""
@@ -131,6 +133,7 @@ class MDUtility(QObject):
                                  "There was an error opening the project.")
             return
         self.project = self.loadProject(project)
+        self.setStatus("Opened MDU project...")
 
     def saveProject(self, force=False):
         """Saves the project to a file."""
@@ -153,6 +156,7 @@ class MDUtility(QObject):
                                  "There was an error saving the project.")
             return False
         self.project = self.loadProject(self.project)
+        self.setStatus("Saved MDU project...")
         return True
 
     def compileProject(self):
@@ -189,6 +193,7 @@ class MDUtility(QObject):
             if s == QMessageBox.Yes:
                 if not self.saveProject():
                     return False
+        self.currentFile = None
         self.project = self.loadProject(None)
         self.changeSelection()
         return True
@@ -205,16 +210,14 @@ class MDUtility(QObject):
     def exportFile(self):
         """Exports the current file into the appropriate format."""
 
-        f = self.getCurrentFile()
-        if f:
-            f.exportFile()
+        if self.currentFile:
+            self.currentFile.exportFile()
 
     def importFile(self):
         """Imports data into the current file."""
 
-        f = self.getCurrentFile()
-        if f:
-            f.exportFile()
+        if self.currentFile:
+            self.currentFile.exportFile()
 
     def toggleHidden(self):
         """Toggles whether or not hidden files are shown."""
@@ -242,17 +245,16 @@ class MDUtility(QObject):
             else:
                 self.ui.actionImport.setDisabled(True)
             f.displayArea(self.ui.FileArea)
+            self.currentFile = f
         else:
             self.ui.actionExport.setDisabled(True)
             self.ui.actionImport.setDisabled(True)
 
-    def getCurrentFile(self):
-        """Gets the currently opened project file."""
+    def setStatus(self, message, timeout=2000):
+        """Sets the status bar's current message."""
 
-        s = self.ui.FileList.selectionModel.selection()
-        if self.project and len(s) == 1 and s[0] < self.project.rowCount():
-            return sorted(self.project.files)[s[0]]
-        return None
+        s = self.ui.statusBar()
+        s.showMessage(message, timeout)
 
 ########
 # MAIN #

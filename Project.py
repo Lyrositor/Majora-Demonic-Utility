@@ -82,6 +82,7 @@ class Project(QAbstractListModel):
             f = open(projectFilePath, "wb")
         except IOError:
             return False
+        self.beginSave()
         f.write(HEADER)
         for b, projectFile in self.files.items():
             f.write(projectFile.getRawData(0))
@@ -96,20 +97,24 @@ class Project(QAbstractListModel):
         r = ROM(romFilePath)
         if not r:
             return False
+        self.beginSave()
         projectFiles = {}
         for b, f in self.files.items():
-            projectFiles[DATA["BLOCKS"][b]] = f.getRawData(1)
+            projectFiles[DATA["BLOCKS"][b]] = f
         r.updateFiles(projectFiles)
         r.updateCRCs()
         return r.writeToFile(romFilePath)
 
+    def beginSave(self):
+        """Informs files that they are being saved."""
+
+        for b, f in self.files.items():
+            f.beginSave()
+
     def checkSaved(self):
         """Checks if there are unsaved changes to the project."""
 
-        for b, f in self.files.items():
-            if not f.saved:
-                return False
-        return True
+        return all(f.saved for b, f in self.files.items())
 
     def getFile(self, index):
         """Gets the file at the specified index."""

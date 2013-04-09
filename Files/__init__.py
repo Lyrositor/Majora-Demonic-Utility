@@ -16,12 +16,13 @@ def loadFile(f, parent):
         if address == start:
             if block in DATA["FILES"]:
                 fileBlock = block
-                FileClass = getattr(sys.modules[__name__], DATA["FILES"][block])
+                FileClass = getattr(sys.modules[__name__],
+                                    DATA["FILES"][block]["Type"])
             break
     if not FileClass:
         return None
     try:
-        fileObject = FileClass(fileBlock, f[2], parent)
+        fileObject = FileClass(fileBlock, f[4], parent)
     except AttributeError:
         return None
     return fileObject
@@ -29,6 +30,6 @@ def loadFile(f, parent):
 def openFile(label, data, parent):
     """Opens a project file."""
 
-    FileClass = getattr(sys.modules[__name__],  DATA["FILES"][label])
+    FileClass = getattr(sys.modules[__name__],  DATA["FILES"][label]["Type"])
     fileObject = FileClass(label, data, parent)
     return fileObject
