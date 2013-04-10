@@ -87,6 +87,8 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="separator"/>
+    <addaction name="actionWebsite"/>
    </widget>
    <widget class="QMenu" name="MenuOptions">
     <property name="title">
@@ -208,6 +210,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionWebsite">
+   <property name="text">
+    <string>Website</string>
    </property>
   </action>
  </widget>

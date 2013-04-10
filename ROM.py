@@ -1,3 +1,24 @@
+"""
+    Majora's Demonic Utility - all-in-one editor for Majora's Mask.
+    Copyright (C) 2013  Lyrositor <gagne.marc@gmail.com>
+
+    This file is part of Majora's Demonic Utility.
+
+    Majora's Demonic Utility is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Majora's Demonic Utility is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Majora's Demonic Utility.  If not, see
+    <http://www.gnu.org/licenses/>.
+"""
+
 # ROM
 # Takes care of reading and writing to a Majora's Mask ROM.
 
@@ -114,8 +135,6 @@ class ROM(BytesIO):
                 p_newEnd = p_oldEnd
                 p_oldSize = v_oldEnd - v_oldStart
                 p_newSize = p_oldSize
-            print(hex(v_oldStart), hex(v_oldEnd), hex(p_oldStart), hex(p_oldEnd))
-            print(hex(v_newStart), hex(v_newEnd), hex(p_newStart), hex(p_newEnd))
             data[i:i + 16] = struct.pack(">LLLL", v_newStart, v_newEnd,
                                          p_newStart, p_newEnd)
             data[p_newStart:p_newStart + p_oldSize] = newData

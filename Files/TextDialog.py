@@ -1,3 +1,24 @@
+"""
+    Majora's Demonic Utility - all-in-one editor for Majora's Mask.
+    Copyright (C) 2013  Lyrositor <gagne.marc@gmail.com>
+
+    This file is part of Majora's Demonic Utility.
+
+    Majora's Demonic Utility is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Majora's Demonic Utility is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Majora's Demonic Utility.  If not, see
+    <http://www.gnu.org/licenses/>.
+"""
+
 # TextDialog
 # Handles dialog text editing.
 
@@ -115,6 +136,9 @@ class TextDialog(File):
         block["Text"] = ""
         while True:
             size = 1
+            if d[i] == 0xBF:
+                i += size
+                break
             if d[i] in range(0x20, 0xB0):
                 block["Text"] += chr(d[i])
             else:
@@ -132,9 +156,6 @@ class TextDialog(File):
                         block["Text"] += code
                 except KeyError:
                     block["Text"] += "[{}]".format(FormatHex(d[i]))
-            if d[i] == 0xBF:
-                i += size
-                break
             i += size
 
         block.rawData = d[address:i]
@@ -317,7 +338,7 @@ class TextDialog(File):
         """Updates the block's cost."""
 
         idx = self.getCurrentBlockID()
-        if idx is None:
+        if idx is None or idx not in self.blocks:
             return
         try:
             value = int(value, 16)
@@ -332,7 +353,7 @@ class TextDialog(File):
         """Updates the next text block's index."""
 
         idx = self.getCurrentBlockID()
-        if idx is None:
+        if idx is None or idx not in self.blocks:
             return
         try:
             value = int(value, 16)
@@ -347,7 +368,7 @@ class TextDialog(File):
         """Updates the block's text box icon."""
 
         idx = self.getCurrentBlockID()
-        if idx is None or not isinstance(value, int):
+        if idx is None or idx not in self.blocks or not isinstance(value, int):
             return
         oldValue = self.blocks[idx]["Icon"]
         self.blocks[idx]["Icon"] = self.IconInput.itemData(value)
@@ -358,7 +379,7 @@ class TextDialog(File):
         """Updates the block's text box type."""
 
         idx = self.getCurrentBlockID()
-        if idx is None or not isinstance(value, int):
+        if idx is None or idx not in self.blocks or not isinstance(value, int):
             return
         oldValue = self.blocks[idx]["Type"]
         self.blocks[idx]["Type"] = self.TypeInput.itemData(value)
@@ -369,7 +390,7 @@ class TextDialog(File):
         """Updates the block's text box position."""
 
         idx = self.getCurrentBlockID()
-        if idx is None or not isinstance(value, int):
+        if idx is None or idx not in self.blocks or not isinstance(value, int):
             return
         oldValue = self.blocks[idx]["Position"]
         self.blocks[idx]["Position"] = self.PositionInput.itemData(value)
@@ -380,7 +401,7 @@ class TextDialog(File):
         """Updates the current block's text."""
 
         idx = self.getCurrentBlockID()
-        if idx is None:
+        if idx is None or idx not in self.blocks:
             return
         oldValue = self.blocks[idx]["Text"]
         self.blocks[idx]["Text"] = self.BlockEdit.toPlainText()
@@ -408,7 +429,7 @@ class TextDialog(File):
         """Deletes the current text block."""
 
         idx = self.getCurrentBlockID()
-        if idx is None:
+        if idx is None or idx not in self.blocks:
             return
         del self.blocks[idx]
         if not self.goToNearbyBlock(-1):
@@ -435,7 +456,7 @@ class TextBlock(dict):
                     self[entry["Name"]] = value
                     data += value.to_bytes(entry["Size"], "big")
             data += bytes([0xFF] * 4)
-            self["Text"] = "{end}"
+            self["Text"] = ""
             self.rawData += data + (0xBF).to_bytes(1, "big")
 
     def __setitem__(self, key, value):
@@ -463,5 +484,5 @@ class TextBlock(dict):
                               b"((\s[0-9A-Fa-f][0-9A-Fa-f])+)?\]",
                               ReplaceControlCode, text)
                 r = DATA["TEXT"]["HEADER"]["Size"]
-                self.rawData[r:] = bytes(text)
+                self.rawData[r:] = bytes(text) + b"\xbf"
         super().__setitem__(key, value)

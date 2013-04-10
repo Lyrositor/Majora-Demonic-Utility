@@ -25,17 +25,17 @@ HEADER:
           Size: 1
           Type: int
           Value:
-              0x0: Unknown 1
-              0x1: Unknown 2
-              0x3: Unknown 3
-              0x10: Unknown 4
-              0x11: Unknown 5
-              0x20: Unknown 6
-              0x21: Unknown 7
-              0x23: Unknown 8
-              0x30: Unknown 9
-              0x31: Unknown 10
-              0x71: Unknown 11
+              0x0: Bottom 1
+              0x1: Bottom 2
+              0x3: Bottom 3
+              0x10: Top 1
+              0x11: Top 2
+              0x20: Middle 1
+              0x21: Middle 2
+              0x23: Middle 3
+              0x30: Bottom 4
+              0x31: Bottom 5
+              0x71: Bottom 6 (low)
         - Name: Icon
           Size: 1
           Type: int
@@ -336,5 +336,3 @@ CONTROL_CODES:
         Size: 3
     0x1F:
         Size: 3
-    0xBF:
-        Replace: end

@@ -1,4 +1,26 @@
 #!/usr/bin/env python3
+
+"""
+    Majora's Demonic Utility - all-in-one editor for Majora's Mask.
+    Copyright (C) 2013  Lyrositor <gagne.marc@gmail.com>
+
+    This file is part of Majora's Demonic Utility.
+
+    Majora's Demonic Utility is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Majora's Demonic Utility is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Majora's Demonic Utility.  If not, see
+    <http://www.gnu.org/licenses/>.
+"""
+
 # MDUtility
 # Majora's Demonic Utility
 
@@ -21,6 +43,9 @@ DEFAULT_FILENAME = "Project.mdu"
 # The UI file for the main window.
 UI_FILE = os.path.join("UI", "Main.ui")
 
+# The website URL for Majora's Demonic Utility.
+WEBSITE = "http://zelda.lyros.net"
+
 
 class MDUtility(QObject):
     """The Majora's Demonic Utility class."""
@@ -30,13 +55,14 @@ class MDUtility(QObject):
 
         super().__init__()
         self.ui = QUiLoader().load(UI_FILE)
+        self.ui.setWindowIcon(QIcon(":/images/Icon.png"))
         self.ui.show()
 
         # Initialize variables.
         self.currentFile = None
         self.currentPath = None
         self.showHidden = False
-        self.project = None
+        self.project = self.loadProject(None)
 
         # Connect the actions to their respective slots.
         self.ui.actionNew.triggered.connect(self.newProject)
@@ -49,6 +75,9 @@ class MDUtility(QObject):
         self.ui.actionShow_Hidden_Files.triggered.connect(self.toggleHidden)
         self.ui.actionClose.triggered.connect(self.closeProject)
         self.ui.actionQuit.triggered.connect(QCoreApplication.instance().quit)
+        self.ui.actionAbout.triggered.connect(self.openAboutDialog)
+        self.ui.actionWebsite.triggered.connect(lambda x=None:
+                                        QDesktopServices.openUrl(QUrl(WEBSITE)))
 
     def loadProject(self, project):
         """Activates or deactivates the project GUI elements."""
@@ -249,6 +278,19 @@ class MDUtility(QObject):
         else:
             self.ui.actionExport.setDisabled(True)
             self.ui.actionImport.setDisabled(True)
+
+    def openAboutDialog(self):
+        """Opens MDU's about dialog."""
+
+        self.aboutDialog = QMessageBox()
+        self.aboutDialog.setWindowTitle("About Majora's Demonic Utility")
+        self.aboutDialog.setText("<p><strong>Majora's Demonic Utility</strong>"
+                                 "</p><p>All-in-one editor for Majora's Mask."
+                                 "</p><br /><p><em>Copyright (C) 2013  "
+                                 "Lyrositor</em></p>")
+        self.aboutDialog.setIconPixmap(QPixmap(":/images/Icon.png"))
+        self.aboutDialog.setWindowIcon(QIcon(":/images/Icon.png"))
+        self.aboutDialog.show()
 
     def setStatus(self, message, timeout=2000):
         """Sets the status bar's current message."""
