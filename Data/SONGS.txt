@@ -56,7 +56,7 @@ LIST:
 
     SONG_OF_DOUBLE_TIME:
         Name: Song of Double Time
-        Playback:
+        Playback: 0xC6DDA4
         Song: 0xC6EFFD
 
     SONG_OF_HEALING:
