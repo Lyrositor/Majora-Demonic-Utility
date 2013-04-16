@@ -1,0 +1,142 @@
+LIST:
+    ELEGY_OF_EMPTINESS:
+        Name: Elegy of Emptiness
+        Playback: 0xC6D764
+        Song: 0xC6EFA3
+
+    EPONA_SONG:
+        Name: Epona's Song
+        Playback: 0xC6DA84
+        Song: 0xC6EFD0
+
+    GORON_LULLABY:
+        Name: Goron Lullaby
+        Playback: 0xC6D624
+        Song: 0xC6EF91
+
+    LULLABY_INTRO:
+        Name: Lullaby Intro
+        Playback: 0xC6DE44
+        Song: 0xC6F006
+
+    MILK_BAR_DEKU:
+        Name: Milk Bar Song (Deku)
+        Playback: 0xC6E0C4
+        Song: 0xC6F02A
+
+    MILK_BAR_GORON:
+        Name: Milk Bar Song (Goron)
+        Playback: 0xC6DF84
+        Song: 0xC6F018
+
+    MILK_BAR_HYLIAN:
+        Name: Milk Bar Song (Hylian)
+        Playback: 0xC6DEE4
+        Song: 0xC6F00F
+
+    MILK_BAR_ZORA:
+        Name: Milk Bar Song (Zora)
+        Playback: 0xC6E024
+        Song: 0xC6F021
+
+    NEW_WAVE_BOSSA_NOVA:
+        Name: New Wave Bossa Nova
+        Playback: 0xC6D6C4
+        Song: 0xC6EF9A
+
+    OATH_TO_ORDER:
+        Name: Oath To Order
+        Playback: 0xC6D804
+        Song: 0xC6EFAC
+
+    SONATA_OF_AWAKENING:
+        Name: Sonata of Awakening
+        Playback: 0xC6D584
+        Song: 0xC6EF88
+
+    SONG_OF_DOUBLE_TIME:
+        Name: Song of Double Time
+        Playback:
+        Song: 0xC6EFFD
+
+    SONG_OF_HEALING:
+        Name: Song of Healing
+        Playback: 0xC6D9E4
+        Song: 0xC6EFC7
+
+    SONG_OF_SOARING:
+        Name: Song of Soaring
+        Playback: 0xC6DB24
+        Song: 0xC6EFD9
+
+    SONG_OF_STORMS:
+        Name: Song of Storms
+        Playback: 0xC6DBC4
+        Song: 0xC6EFE2
+
+    SONG_OF_TIME:
+        Name: Song of Time
+        Playback: 0xC6D944
+        Song: 0xC6EFBE
+
+    SONG_OF_TIME_INVERTED:
+        Name: Inverted Song of Time
+        Playback: 0xC6DD04
+        Song: 0xC6EFF4
+
+PLAYBACK_DATA:
+    Size: 8
+    Entries:
+        - Name: Button
+          Size: 1
+          Type: int
+          Value:
+              0x2: A
+              0x5: Down
+              0x9: Right
+              0xB: Left
+              0xE: Up
+              0xFF: None
+        - Name:
+          Size: 1
+          Type:
+          Value: 0
+        - Name: Length
+          Size: 2
+          Type: int
+          Value: 0
+        - Name: Volume
+          Size: 2
+          Type: int
+          Value: 0
+        - Name: Pitch
+          Size: 1
+          Type: int
+          Value: 0
+        - Name: Vibrato
+          Size: 1
+          Type: int
+          Value: 0
+
+SONG_DATA:
+    Size:
+    Entries:
+        - Name: Length
+          Size: 1
+          Type: int
+          Value: 0
+        - Name: Note
+          Size: 1
+          Type: int
+          Value:
+              0x0: A
+              0x1: Down
+              0x2: Right
+              0x3: Left
+              0x4: Up
+    Notes:
+        0x2: 0x0
+        0x5: 0x1
+        0x9: 0x2
+        0xB: 0x3
+        0xE: 0x4

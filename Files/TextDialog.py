@@ -54,13 +54,13 @@ class TextDialog(File):
     """The dialog text editor class."""
 
     DISPLAY = True
-    DISPLAY_NAME = "Text - Dialog"
-    EXPORT_NAME = "TEXT_DIALOG.ztxt"
+    DISPLAY_NAME = "Dialog Text"
+    EXPORT_NAME = "DIALOG_TEXT.ztxt"
     EXPORT_TYPE = "Zelda Text Bank (*.ztxt)"
     IMPORT = False
 
     def __init__(self, label, data, parent):
-        """Loads the text blocks."""
+        """Initializes the file."""
 
         super().__init__(label, data, parent)
         self.blocks = {}

@@ -1,5 +1,5 @@
 DATA_TABLE:
-    Type: File
+    Type: DataTable
     Compress: True
 TEXT_DIALOG:
     Type: TextDialog

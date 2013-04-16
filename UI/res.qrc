@@ -1,5 +1,10 @@
 <RCC>
     <qresource prefix="/images">
         <file>Icon.png</file>
+        <file>OcarinaButton_A.png</file>
+        <file>OcarinaButton_Down.png</file>
+        <file>OcarinaButton_Left.png</file>
+        <file>OcarinaButton_Right.png</file>
+        <file>OcarinaButton_Up.png</file>
     </qresource>
 </RCC>

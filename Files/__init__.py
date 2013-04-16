@@ -26,6 +26,7 @@ import sys
 
 from Data import *
 
+from Files.DataTable import *
 from Files.TextDialog import *
 
 def loadFile(f, parent):

@@ -47,14 +47,16 @@ UI_FILE = os.path.join("UI", "Main.ui")
 WEBSITE = "http://zelda.lyros.net"
 
 
-class MDUtility(QObject):
+class MDUtility(QApplication):
     """The Majora's Demonic Utility class."""
 
-    def __init__(self):
+    def __init__(self, args):
         """Initializes the application and opens the main window."""
 
-        super().__init__()
-        self.ui = QUiLoader().load(UI_FILE)
+        super().__init__(args)
+        self.ui = MainWindow()
+        self.ui.MDUtility = self
+        self.ui.setupUi(self.ui)
         self.ui.setWindowIcon(QIcon(":/images/Icon.png"))
         self.ui.show()
 
@@ -227,15 +229,6 @@ class MDUtility(QObject):
         self.changeSelection()
         return True
 
-    def closeEvent(self, event):
-        """Called when closing event sent. Checks if all files were saved."""
-
-        if self.project:
-            if not self.closeProject():
-                event.ignore()
-                return
-        event.accept()
-
     def exportFile(self):
         """Exports the current file into the appropriate format."""
 
@@ -298,11 +291,24 @@ class MDUtility(QObject):
         s = self.ui.statusBar()
         s.showMessage(message, timeout)
 
+
+class MainWindow(QMainWindow, Main.Ui_MainWindow):
+    """The main window class."""
+
+    def closeEvent(self, event):
+        """Called when closing event sent. Checks if all files were saved."""
+
+        parent = self.MDUtility
+        if parent.project:
+            if not parent.closeProject():
+                event.ignore()
+                return
+        event.accept()
+
 ########
 # MAIN #
 ########
 
 if __name__ == "__main__":
-    a = QApplication(sys.argv)
-    m = MDUtility()
-    sys.exit(a.exec_())
+    m = MDUtility(sys.argv)
+    sys.exit(m.exec_())

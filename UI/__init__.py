@@ -23,3 +23,4 @@
 # Loads the UI modules created with Qt Creator.
 
 from . import res
+from . import Main
